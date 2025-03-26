@@ -2,6 +2,9 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.nn.functional as F
+from torch.utils.data import Subset
+from torchvision import transforms
+from torchvision.datasets import MNIST
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score, classification_report
 
@@ -32,6 +35,30 @@ def evaluate_model(model, test_loader, device='cpu'):
 
     return (accuracy_score(np.hstack(ground_truths), np.hstack(predictions)),
             classification_report(np.hstack(ground_truths), np.hstack(predictions), zero_division=0, digits=3))
+
+
+def load_dataset(dataset_name, batch_size):
+    if dataset_name == 'mnist':
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,))  # Sottraggo la media e divido per la deviazione standard
+        ])
+
+        ds_train = MNIST(root='./data', train=True, download=True, transform=transform)
+        ds_test = MNIST(root='./data', train=False, download=True, transform=transform)
+
+        val_size = 5000
+        I = np.random.permutation(len(ds_train))
+        ds_val = Subset(ds_train, I[:val_size])
+        ds_train = Subset(ds_train, I[val_size:])
+
+        train_loader = torch.utils.data.DataLoader(ds_train, batch_size, shuffle=True, num_workers=4)
+        validation_loader = torch.utils.data.DataLoader(ds_val, batch_size, num_workers=4)
+        test_loader = torch.utils.data.DataLoader(ds_test, batch_size, shuffle=True, num_workers=4)
+    else:
+        raise ValueError(f'Dataset {dataset_name} not supported')
+
+    return train_loader, validation_loader, test_loader
 
 def plot_validation_curves(losses, accs):
     plt.figure(figsize=(16, 8))
