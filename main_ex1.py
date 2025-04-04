@@ -1,10 +1,7 @@
 import os
 
-from comet_ml.config.config_api import experiment
-from numpy import random
-
-from MLP import MLP
-from comet_ml import ConfusionMatrix, login, start
+from Lab1.models.MLP import MLP
+from comet_ml import start
 from comet_ml.integration.pytorch import log_model
 
 import utils
