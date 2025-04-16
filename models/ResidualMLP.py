@@ -7,7 +7,6 @@ class ResidualBlock(nn.Module):
         super().__init__()
         self.linear1 = nn.Linear(in_features, in_features)
         self.linear2 = nn.Linear(in_features, in_features)
-        self.out_features = 2*in_features
 
     def forward(self, x):
         identity = x
